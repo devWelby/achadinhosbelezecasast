@@ -47,3 +47,9 @@ dist/
 build/
 .netlify/
 .cache/
+
+# 7. Arquivos do Firebase CLI (Caso use Firebase Hosting futuramente)
+.firebase/
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
