@@ -1,5 +1,6 @@
 import { 
-    auth, db, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+    auth, db, storage, ref, uploadBytes, getDownloadURL,
+    signInWithEmailAndPassword, signOut, onAuthStateChanged,
     collection, getDocs, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc
 } from './firebase.js';
 
@@ -12,6 +13,31 @@ const logoutBtn = document.getElementById('logout-btn');
 
 const navLinks = document.querySelectorAll('.nav-links a');
 const contentSections = document.querySelectorAll('.content-section');
+
+// ==========================================
+// MENU MOBILE
+// ==========================================
+const sidebar = document.getElementById('sidebar');
+const mobileMenuOpenBtn = document.getElementById('mobile-menu-open');
+const mobileMenuOpenConfigBtn = document.getElementById('mobile-menu-open-config');
+const mobileMenuCloseBtn = document.getElementById('mobile-menu-close');
+
+function toggleMobileMenu() {
+    sidebar.classList.toggle('open');
+}
+
+if(mobileMenuOpenBtn) mobileMenuOpenBtn.addEventListener('click', toggleMobileMenu);
+if(mobileMenuOpenConfigBtn) mobileMenuOpenConfigBtn.addEventListener('click', toggleMobileMenu);
+if(mobileMenuCloseBtn) mobileMenuCloseBtn.addEventListener('click', toggleMobileMenu);
+
+// Fecha o menu ao clicar num link
+navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('open');
+        }
+    });
+});
 
 // ==========================================
 // AUTENTICAÇÃO
@@ -83,7 +109,17 @@ async function loadConfig() {
         const data = configDoc.data();
         document.getElementById('config-nome').value = data.nome || '';
         document.getElementById('config-bio').value = data.bio || '';
-        document.getElementById('config-logo').value = data.logo || '';
+        
+        // Logo file config
+        const fileInput = document.getElementById('config-logo-file');
+        const currentText = document.getElementById('current-logo-text');
+        fileInput.setAttribute('data-current', data.logo || '');
+        if(data.logo) {
+            currentText.innerHTML = `Atual: <a href="${data.logo}" target="_blank">Ver imagem atual</a>`;
+        } else {
+            currentText.textContent = '';
+        }
+        
         document.getElementById('config-instagram').value = data.instagram || '';
         document.getElementById('config-tiktok').value = data.tiktok || '';
     }
@@ -95,10 +131,21 @@ configForm.addEventListener('submit', async (e) => {
     btn.textContent = 'Salvando...';
     btn.disabled = true;
     
+    let logoUrl = document.getElementById('config-logo-file').getAttribute('data-current') || '';
+    const fileInput = document.getElementById('config-logo-file');
+    
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const storageRef = ref(storage, `config/logo_${Date.now()}_${file.name}`);
+        btn.textContent = 'Enviando imagem...';
+        await uploadBytes(storageRef, file);
+        logoUrl = await getDownloadURL(storageRef);
+    }
+
     const data = {
         nome: document.getElementById('config-nome').value,
         bio: document.getElementById('config-bio').value,
-        logo: document.getElementById('config-logo').value,
+        logo: logoUrl,
         instagram: document.getElementById('config-instagram').value,
         tiktok: document.getElementById('config-tiktok').value,
     };
@@ -134,6 +181,8 @@ function closeModal() {
     productModal.classList.remove('active');
     productForm.reset();
     document.getElementById('product-id').value = '';
+    document.getElementById('current-image-text').textContent = '';
+    document.getElementById('product-imagem-file').removeAttribute('data-current');
 }
 
 closeModalBtn.addEventListener('click', closeModal);
@@ -179,7 +228,16 @@ function editProduct(id, data) {
     document.getElementById('product-id').value = id;
     document.getElementById('product-titulo').value = data.titulo || '';
     document.getElementById('product-link').value = data.link || '';
-    document.getElementById('product-imagem').value = data.imagem || '';
+    
+    const fileInput = document.getElementById('product-imagem-file');
+    const currentText = document.getElementById('current-image-text');
+    fileInput.setAttribute('data-current', data.imagem || '');
+    if (data.imagem) {
+        currentText.innerHTML = `Atual: <a href="${data.imagem}" target="_blank">Ver imagem atual</a>`;
+    } else {
+        currentText.textContent = '';
+    }
+
     document.getElementById('product-categoria').value = data.categoria || '';
     document.getElementById('product-descricao').value = data.descricao || '';
     openModal("Editar Produto");
@@ -188,20 +246,39 @@ function editProduct(id, data) {
 productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = productForm.querySelector('button');
-    btn.textContent = 'Salvando...';
+    btn.textContent = 'Enviando...';
     btn.disabled = true;
 
     const id = document.getElementById('product-id').value;
-    const data = {
-        titulo: document.getElementById('product-titulo').value,
-        link: document.getElementById('product-link').value,
-        imagem: document.getElementById('product-imagem').value,
-        categoria: document.getElementById('product-categoria').value,
-        descricao: document.getElementById('product-descricao').value,
-        updatedAt: new Date()
-    };
-
+    
+    let imageUrl = document.getElementById('product-imagem-file').getAttribute('data-current') || '';
+    const fileInput = document.getElementById('product-imagem-file');
+    
     try {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const storageRef = ref(storage, `produtos/${Date.now()}_${file.name}`);
+            btn.textContent = 'Enviando imagem...';
+            await uploadBytes(storageRef, file);
+            imageUrl = await getDownloadURL(storageRef);
+        }
+
+        if (!imageUrl) {
+            alert("A imagem do produto é obrigatória!");
+            btn.textContent = 'Salvar Produto';
+            btn.disabled = false;
+            return;
+        }
+
+        btn.textContent = 'Salvando produto...';
+        const data = {
+            titulo: document.getElementById('product-titulo').value,
+            link: document.getElementById('product-link').value,
+            imagem: imageUrl,
+            categoria: document.getElementById('product-categoria').value,
+            descricao: document.getElementById('product-descricao').value,
+            updatedAt: new Date()
+        };
         if (id) {
             await updateDoc(doc(db, "produtos", id), data);
         } else {

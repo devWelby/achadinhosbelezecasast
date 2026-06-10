@@ -263,3 +263,55 @@ body {
     cursor: pointer;
     color: var(--text-dark);
 }
+
+/* ==========================================
+   RESPONSIVIDADE (MOBILE)
+   ========================================== */
+.mobile-only-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .mobile-only-btn {
+        display: block;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transition: 0.3s;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .sidebar .mobile-only-btn {
+        color: white;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+
+    /* Ajuste de tabelas no mobile para rolagem horizontal */
+    .products-table-container {
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .main-content {
+        padding: 15px;
+    }
+
+    .section-header h2 {
+        font-size: 1.2rem;
+    }
+}

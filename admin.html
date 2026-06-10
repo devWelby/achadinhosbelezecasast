@@ -32,9 +32,10 @@
 
     <!-- TELA DO DASHBOARD -->
     <div id="dashboard-view" class="view-container" style="display: none;">
-        <nav class="sidebar">
+        <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h2>Admin</h2>
+                <button id="mobile-menu-close" class="mobile-only-btn"><i class="fas fa-times"></i></button>
             </div>
             <ul class="nav-links">
                 <li><a href="#" class="active" data-target="section-products"><i class="fas fa-box"></i> Produtos</a></li>
@@ -47,8 +48,11 @@
             <!-- SESSÃO DE PRODUTOS -->
             <section id="section-products" class="content-section active">
                 <div class="section-header">
-                    <h2>Meus Achadinhos</h2>
-                    <button id="add-product-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Produto</button>
+                    <div style="display:flex; align-items:center; gap: 10px;">
+                        <button id="mobile-menu-open" class="mobile-only-btn"><i class="fas fa-bars"></i></button>
+                        <h2>Meus Achadinhos</h2>
+                    </div>
+                    <button id="add-product-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Novo</button>
                 </div>
                 
                 <div class="products-table-container">
@@ -70,7 +74,12 @@
 
             <!-- SESSÃO DE CONFIGURAÇÕES -->
             <section id="section-config" class="content-section" style="display: none;">
-                <h2>Configurações do Site</h2>
+                <div class="section-header">
+                    <div style="display:flex; align-items:center; gap: 10px;">
+                        <button id="mobile-menu-open-config" class="mobile-only-btn"><i class="fas fa-bars"></i></button>
+                        <h2>Configurações do Site</h2>
+                    </div>
+                </div>
                 <div class="card">
                     <form id="config-form">
                         <div class="input-group">
@@ -82,8 +91,9 @@
                             <textarea id="config-bio" rows="3" required></textarea>
                         </div>
                         <div class="input-group">
-                            <label>Link da Logo (URL)</label>
-                            <input type="url" id="config-logo" placeholder="https://...">
+                            <label>Foto de Perfil (Logo)</label>
+                            <input type="file" id="config-logo-file" accept="image/*">
+                            <small id="current-logo-text" style="display:block; margin-top:5px; color:#666;"></small>
                         </div>
                         <div class="input-group">
                             <label>Link do Instagram</label>
@@ -119,8 +129,9 @@
                     <input type="url" id="product-link" required>
                 </div>
                 <div class="input-group">
-                    <label>URL da Imagem *</label>
-                    <input type="url" id="product-imagem" required>
+                    <label>Imagem do Produto *</label>
+                    <input type="file" id="product-imagem-file" accept="image/*">
+                    <small id="current-image-text" style="display:block; margin-top:5px; color:#666;"></small>
                 </div>
                 <div class="input-group">
                     <label>Categoria</label>
