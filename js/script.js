@@ -55,9 +55,13 @@ function loadConfig() {
         if (docSnap.exists()) {
             const data = docSnap.data();
             
-            if (data.nome) document.querySelector('.profile-name').innerHTML = `<img src="${data.logo || 'assets/logo.jpg'}" alt="Logo" class="title-logo"> ${data.nome}`;
+            if (data.nome) document.querySelector('.profile-name').textContent = data.nome;
             if (data.bio) document.querySelector('.profile-bio').textContent = data.bio;
-            if (data.logo) document.querySelector('.profile-img').src = data.logo;
+            if (data.logo) {
+                document.querySelector('.profile-img').src = data.logo;
+                const favicon = document.getElementById('favicon');
+                if (favicon) favicon.href = data.logo;
+            }
             
             // Redes sociais
             const socialContainer = document.querySelector('.social-links');
