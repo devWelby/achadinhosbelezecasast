@@ -20,6 +20,7 @@ const contentSections = document.querySelectorAll('.content-section');
 const sidebar = document.getElementById('sidebar');
 const mobileMenuOpenBtn = document.getElementById('mobile-menu-open');
 const mobileMenuOpenConfigBtn = document.getElementById('mobile-menu-open-config');
+const mobileMenuOpenPreviewBtn = document.getElementById('mobile-menu-open-preview');
 const mobileMenuCloseBtn = document.getElementById('mobile-menu-close');
 
 function toggleMobileMenu() {
@@ -28,6 +29,7 @@ function toggleMobileMenu() {
 
 if(mobileMenuOpenBtn) mobileMenuOpenBtn.addEventListener('click', toggleMobileMenu);
 if(mobileMenuOpenConfigBtn) mobileMenuOpenConfigBtn.addEventListener('click', toggleMobileMenu);
+if(mobileMenuOpenPreviewBtn) mobileMenuOpenPreviewBtn.addEventListener('click', toggleMobileMenu);
 if(mobileMenuCloseBtn) mobileMenuCloseBtn.addEventListener('click', toggleMobileMenu);
 
 // Fecha o menu ao clicar num link
