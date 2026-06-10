@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Achados Beleza e Casa St</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+    <!-- TELA DE LOGIN -->
+    <div id="login-view" class="view-container active">
+        <div class="login-box">
+            <img src="assets/logo.jpg" alt="Logo" class="admin-logo">
+            <h2>Painel Administrativo</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <p id="login-error" class="error-msg"></p>
+                <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TELA DO DASHBOARD -->
+    <div id="dashboard-view" class="view-container" style="display: none;">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active" data-target="section-products"><i class="fas fa-box"></i> Produtos</a></li>
+                <li><a href="#" data-target="section-config"><i class="fas fa-cog"></i> Configurações</a></li>
+            </ul>
+            <button id="logout-btn" class="btn btn-danger btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </nav>
+
+        <main class="main-content">
+            <!-- SESSÃO DE PRODUTOS -->
+            <section id="section-products" class="content-section active">
+                <div class="section-header">
+                    <h2>Meus Achadinhos</h2>
+                    <button id="add-product-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Produto</button>
+                </div>
+                
+                <div class="products-table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Título</th>
+                                <th>Categoria</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-products-list">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SESSÃO DE CONFIGURAÇÕES -->
+            <section id="section-config" class="content-section" style="display: none;">
+                <h2>Configurações do Site</h2>
+                <div class="card">
+                    <form id="config-form">
+                        <div class="input-group">
+                            <label>Nome da Página</label>
+                            <input type="text" id="config-nome" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Biografia (Descrição)</label>
+                            <textarea id="config-bio" rows="3" required></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Link da Logo (URL)</label>
+                            <input type="url" id="config-logo" placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <label>Link do Instagram</label>
+                            <input type="url" id="config-instagram" placeholder="https://instagram.com/...">
+                        </div>
+                        <div class="input-group">
+                            <label>Link do TikTok</label>
+                            <input type="url" id="config-tiktok" placeholder="https://tiktok.com/@...">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                        <p id="config-msg" class="success-msg"></p>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL DE PRODUTO -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Novo Produto</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="product-form">
+                <input type="hidden" id="product-id">
+                <div class="input-group">
+                    <label>Título *</label>
+                    <input type="text" id="product-titulo" required>
+                </div>
+                <div class="input-group">
+                    <label>Link de Afiliado *</label>
+                    <input type="url" id="product-link" required>
+                </div>
+                <div class="input-group">
+                    <label>URL da Imagem *</label>
+                    <input type="url" id="product-imagem" required>
+                </div>
+                <div class="input-group">
+                    <label>Categoria</label>
+                    <input type="text" id="product-categoria" placeholder="Ex: Beleza, Casa, Eletrônicos">
+                </div>
+                <div class="input-group">
+                    <label>Descrição Opcional</label>
+                    <textarea id="product-descricao" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Salvar Produto</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

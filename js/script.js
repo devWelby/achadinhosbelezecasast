@@ -1,36 +1,9 @@
-// ==========================================
-// 1. URL DA PLANILHA (COLE O LINK AQUI)
-// ==========================================
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT1oRupea0ZYG-vkBW-GjpqJsbUY5AhgtoFFnIwHJjiCl-l8hwfN6FM_Xnq8W9bhFlDkVMGMsT2Ngiz/pub?output=csv";
+import { db, collection, onSnapshot, doc } from './firebase.js';
 
 let produtos = [];
 let currentSearchTerm = '';
 let currentCategory = 'Todas';
 
-// Função simples para converter linha CSV em array
-function parseCSV(text) {
-    const lines = text.split('\n').filter(line => line.trim() !== '');
-    if (lines.length === 0) return [];
-    
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-    
-    const result = [];
-    for (let i = 1; i < lines.length; i++) {
-        const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-        const currentline = lines[i].split(regex).map(item => item.replace(/^"|"$/g, '').trim());
-        
-        let obj = {};
-        for (let j = 0; j < headers.length; j++) {
-            obj[headers[j]] = currentline[j] || '';
-        }
-        result.push(obj);
-    }
-    return result;
-}
-
-// ==========================================
-// CARREGAMENTO E RENDERIZAÇÃO
-// ==========================================
 const gridContainer = document.getElementById('products-grid');
 
 function renderSkeletons() {
@@ -57,27 +30,46 @@ function renderSkeletons() {
     }
 }
 
-async function loadProducts() {
-    if (CSV_URL === "COLE_O_LINK_DO_CSV_AQUI" || !CSV_URL) {
-        gridContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Por favor, configure o link da sua planilha.</p>";
-        return;
-    }
-
+function loadProducts() {
     renderSkeletons();
 
-    try {
-        const response = await fetch(CSV_URL);
-        if (!response.ok) throw new Error("Erro ao buscar a planilha");
-        
-        const csvText = await response.text();
-        produtos = parseCSV(csvText);
+    // Escuta alterações na coleção "produtos" em tempo real
+    onSnapshot(collection(db, "produtos"), (snapshot) => {
+        produtos = [];
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            produtos.push({ id: doc.id, ...data });
+        });
         
         renderCategories();
         filterAndRender();
-    } catch (error) {
-        console.error("Erro ao carregar os produtos:", error);
-        gridContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--shopee-color);'>Erro ao carregar produtos. Verifique o link da planilha.</p>";
-    }
+    }, (error) => {
+        console.error("Erro ao carregar produtos do Firebase:", error);
+        gridContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--shopee-color);'>Erro ao carregar produtos.</p>";
+    });
+}
+
+function loadConfig() {
+    // Escuta alterações no documento de configurações do perfil
+    onSnapshot(doc(db, "config", "perfil"), (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            
+            if (data.nome) document.querySelector('.profile-name').innerHTML = `<img src="${data.logo || 'assets/logo.jpg'}" alt="Logo" class="title-logo"> ${data.nome}`;
+            if (data.bio) document.querySelector('.profile-bio').textContent = data.bio;
+            if (data.logo) document.querySelector('.profile-img').src = data.logo;
+            
+            // Redes sociais
+            const socialContainer = document.querySelector('.social-links');
+            socialContainer.innerHTML = '';
+            if (data.instagram) {
+                socialContainer.innerHTML += `<a href="${data.instagram}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
+            }
+            if (data.tiktok) {
+                socialContainer.innerHTML += `<a href="${data.tiktok}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>`;
+            }
+        }
+    });
 }
 
 function escapeHTML(str) {
@@ -106,7 +98,7 @@ function renderProducts(produtosToRender) {
         card.className = 'product-card';
         
         card.innerHTML = `
-            <img src="${escapeHTML(produto.imagem)}" alt="${escapeHTML(produto.titulo)}" class="product-img" loading="lazy">
+            <img src="${escapeHTML(produto.imagem)}" alt="${escapeHTML(produto.titulo)}" class="product-img" loading="lazy" referrerpolicy="no-referrer">
             <div class="product-content">
                 <h2 class="product-title">${escapeHTML(produto.titulo)}</h2>
                 ${produto.descricao ? `<p class="product-desc">${escapeHTML(produto.descricao)}</p>` : ''}
@@ -267,5 +259,6 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('year').textContent = new Date().getFullYear();
     setupSearch();
+    loadConfig();
     loadProducts();
 });
